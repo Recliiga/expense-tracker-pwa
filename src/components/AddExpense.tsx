@@ -335,31 +335,33 @@ const AddExpense: React.FC<AddExpenseProps> = ({
           </Grid>
 
           <Collapse in={showNewCategoryInput}>
-            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-              <TextField
-                fullWidth
-                label="New Category Name"
-                value={newCategory}
-                onChange={(e) => setNewCategory(e.target.value)}
-                size="small"
-              />
-              <Button
-                variant="contained"
-                onClick={handleAddNewCategory}
-                disabled={!newCategory.trim()}
-              >
-                Add
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setShowNewCategoryInput(false);
-                  setNewCategory('');
-                }}
-              >
-                Cancel
-              </Button>
-            </Box>
+            <Grid item xs={12}>
+              <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                <TextField
+                  fullWidth
+                  label="New Category Name"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  size="small"
+                />
+                <Button
+                  variant="contained"
+                  onClick={handleAddNewCategory}
+                  disabled={!newCategory.trim()}
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setShowNewCategoryInput(false);
+                    setNewCategory('');
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </Grid>
           </Collapse>
 
           <Grid item xs={12} sm={6}>

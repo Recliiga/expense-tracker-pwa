@@ -27,11 +27,12 @@ export interface Expense {
 
 export const DEFAULT_EXPENSE_CATEGORIES = [
   'Food & Dining',
-  'Transportation',
+  'Groceries',
   'Entertainment',
-  'Shopping',
+  'Transportation',
   'Utilities',
-  'Housing',
+  'Rent',
+  'Shopping',
   'Other'
 ] as const;
 

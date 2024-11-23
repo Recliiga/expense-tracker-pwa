@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -11,17 +11,23 @@ import {
   Button,
   Dialog,
   DialogContent,
+  ThemeProvider,
+  CssBaseline,
+  Zoom,
+  Fade,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import theme from './theme';
 import Navigation from './components/Navigation';
 import GroupMembers from './components/GroupMembers';
 import AddExpense from './components/AddExpense';
 import BalanceOverview from './components/BalanceOverview';
 import ExpenseList from './components/ExpenseList';
 import MonthlyOverview from './components/MonthlyOverview';
-import MonthlyReport from './components/MonthlyReport';
+import MonthlyReports from './components/MonthlyReports';
 import { Person, Expense, CustomCategory } from './types';
 import { calculateBalances } from './utils/balanceCalculator';
+import { saveExpenses, loadExpenses, savePeople, loadPeople, saveCustomCategories, loadCustomCategories } from './utils/storage';
 
 const modalStyle = {
   position: 'absolute',
@@ -32,7 +38,7 @@ const modalStyle = {
   maxWidth: 1200,
   height: '90vh',
   bgcolor: 'background.paper',
-  borderRadius: 1,
+  borderRadius: theme.shape.borderRadius,
   boxShadow: 24,
   p: 4,
   overflow: 'auto'
@@ -43,9 +49,8 @@ function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [customCategories, setCustomCategories] = useState<CustomCategory[]>([]);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
-  const [showAddExpense, setShowAddExpense] = useState(false);
-  const [openMonthlyReport, setOpenMonthlyReport] = useState(false);
   const [openExpenseDialog, setOpenExpenseDialog] = useState(false);
+  const [openMonthlyReports, setOpenMonthlyReports] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -64,7 +69,7 @@ function App() {
 
   const handleAddExpense = (expense: Expense) => {
     setExpenses(prev => [...prev, expense]);
-    setShowAddExpense(false);
+    setOpenExpenseDialog(false); // Close the dialog after adding
   };
 
   const handleUpdateExpense = (updatedExpense: Expense) => {
@@ -72,6 +77,7 @@ function App() {
       exp.id === updatedExpense.id ? updatedExpense : exp
     ));
     setExpenseToEdit(null);
+    setOpenExpenseDialog(false); // Close the dialog after updating
   };
 
   const handleDeleteExpense = (expenseId: string) => {
@@ -93,126 +99,166 @@ function App() {
 
   const balances = calculateBalances(expenses);
 
+  // Load data from localStorage on startup
+  useEffect(() => {
+    setPeople(loadPeople());
+    setExpenses(loadExpenses());
+    setCustomCategories(loadCustomCategories());
+  }, []);
+
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    savePeople(people);
+  }, [people]);
+
+  useEffect(() => {
+    saveExpenses(expenses);
+  }, [expenses]);
+
+  useEffect(() => {
+    saveCustomCategories(customCategories);
+  }, [customCategories]);
+
   return (
-    <Box sx={{ pb: 7 }}>
-      <Navigation
-        onReportClick={() => setOpenMonthlyReport(true)}
-      />
-      
-      <Container maxWidth="lg" sx={{ mt: 3 }}>
-        <Grid container spacing={3}>
-          {/* Left Column - Group Members and Balances */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ p: 2, mb: 3 }}>
-              <GroupMembers
-                people={people}
-                onAddPerson={handleAddPerson}
-                onUpdatePerson={handleUpdatePerson}
-                onDeletePerson={handleDeletePerson}
-              />
-            </Paper>
-
-            {people.length > 0 && (
-              <BalanceOverview
-                balances={balances}
-                people={people}
-              />
-            )}
-          </Grid>
-
-          {/* Right Column - Monthly Overview and Expense List */}
-          <Grid item xs={12} md={8}>
-            <Paper sx={{ p: 2, mb: 3 }}>
-              <MonthlyOverview
-                expenses={expenses}
-                people={people}
-              />
-            </Paper>
-
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ 
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        pb: 8, // Add padding bottom for FAB
+      }}>
+        <Navigation 
+          onOpenMonthlyReports={() => setOpenMonthlyReports(true)}
+        />
+        
+        <Container maxWidth="lg" sx={{ mt: 3 }}>
+          <Fade in timeout={800}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <Box sx={{ mb: 3 }}>
-                  {!expenseToEdit && (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => setShowAddExpense(true)}
-                      startIcon={<AddIcon />}
-                      fullWidth
-                    >
-                      Add New Expense
-                    </Button>
-                  )}
-                </Box>
-
-                <Dialog
-                  open={showAddExpense || expenseToEdit !== null || openExpenseDialog}
-                  onClose={() => {
-                    setShowAddExpense(false);
-                    setExpenseToEdit(null);
-                    setOpenExpenseDialog(false);
+              {/* Left Column - Group Members and Balance Overview */}
+              <Grid item xs={12} md={4}>
+                <Paper 
+                  elevation={1} 
+                  sx={{ 
+                    p: 2, 
+                    mb: 3,
+                    backgroundColor: 'grey.100'
                   }}
-                  maxWidth="md"
-                  fullWidth
                 >
-                  <DialogContent>
-                    <AddExpense
-                      onAddExpense={handleAddExpense}
-                      onUpdateExpense={handleUpdateExpense}
-                      onAddCustomCategory={handleAddCustomCategory}
-                      people={people}
-                      customCategories={customCategories}
-                      expenseToEdit={expenseToEdit || undefined}
-                      onCancel={() => {
-                        setShowAddExpense(false);
-                        setExpenseToEdit(null);
-                        setOpenExpenseDialog(false);
-                      }}
-                    />
-                  </DialogContent>
-                </Dialog>
+                  <GroupMembers
+                    people={people}
+                    onAddPerson={handleAddPerson}
+                    onUpdatePerson={handleUpdatePerson}
+                    onDeletePerson={handleDeletePerson}
+                  />
+                </Paper>
 
-                <ExpenseList
-                  expenses={expenses}
-                  people={people}
-                  customCategories={customCategories}
-                  onEditExpense={handleEditExpense}
-                  onDeleteExpense={handleDeleteExpense}
-                  onAddExpense={handleOpenAddExpense}
-                />
+                <Paper 
+                  elevation={1} 
+                  sx={{ 
+                    p: 2,
+                    backgroundColor: 'grey.100'
+                  }}
+                >
+                  <BalanceOverview
+                    balances={balances}
+                    people={people}
+                  />
+                </Paper>
+              </Grid>
+
+              {/* Right Column - Monthly Overview and Expense List */}
+              <Grid item xs={12} md={8}>
+                <Paper 
+                  elevation={1} 
+                  sx={{ 
+                    p: 2, 
+                    mb: 3,
+                    backgroundColor: 'grey.100'
+                  }}
+                >
+                  <MonthlyOverview 
+                    expenses={expenses}
+                    people={people}
+                  />
+                </Paper>
+
+                <Paper 
+                  elevation={1} 
+                  sx={{ 
+                    p: 2, 
+                    backgroundColor: 'grey.100',
+                    minHeight: 400 
+                  }}
+                >
+                  <ExpenseList
+                    expenses={expenses}
+                    people={people}
+                    onDeleteExpense={handleDeleteExpense}
+                    onEditExpense={handleEditExpense}
+                    onAddExpense={handleOpenAddExpense}
+                    customCategories={customCategories}
+                  />
+                </Paper>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-      </Container>
+          </Fade>
+        </Container>
 
-      {/* Monthly Report Modal */}
-      <Modal
-        open={openMonthlyReport}
-        onClose={() => setOpenMonthlyReport(false)}
-      >
-        <Box sx={modalStyle}>
-          <MonthlyReport 
-            expenses={expenses} 
-            people={people} 
-            onClose={() => setOpenMonthlyReport(false)}
-          />
-        </Box>
-      </Modal>
+        <Zoom in>
+          <Fab
+            color="primary"
+            aria-label="add expense"
+            onClick={handleOpenAddExpense}
+            sx={{
+              position: 'fixed',
+              bottom: 16,
+              right: 16,
+              transition: '0.3s',
+              '&:hover': {
+                transform: 'scale(1.1)',
+              }
+            }}
+          >
+            <AddIcon />
+          </Fab>
+        </Zoom>
 
-      {/* Floating Action Button */}
-      <Fab
-        color="primary"
-        sx={{
-          position: 'fixed',
-          bottom: isMobile ? 16 : 32,
-          right: isMobile ? 16 : 32,
-        }}
-        onClick={() => setShowAddExpense(true)}
-      >
-        <AddIcon />
-      </Fab>
-    </Box>
+        <Dialog
+          open={openExpenseDialog}
+          onClose={() => setOpenExpenseDialog(false)}
+          maxWidth="md"
+          fullWidth
+          fullScreen={isMobile}
+        >
+          <DialogContent>
+            <AddExpense
+              people={people}
+              onAddExpense={handleAddExpense}
+              onUpdateExpense={handleUpdateExpense}
+              expenseToEdit={expenseToEdit || undefined}
+              customCategories={customCategories}
+              onAddCustomCategory={handleAddCustomCategory}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={openMonthlyReports}
+          onClose={() => setOpenMonthlyReports(false)}
+          maxWidth="lg"
+          fullWidth
+          fullScreen={isMobile}
+        >
+          <DialogContent sx={{ p: 0 }}>
+            <MonthlyReports
+              expenses={expenses}
+              people={people}
+              onClose={() => setOpenMonthlyReports(false)}
+            />
+          </DialogContent>
+        </Dialog>
+      </Box>
+    </ThemeProvider>
   );
 }
 

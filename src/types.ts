@@ -47,14 +47,12 @@ export interface PersonBalance {
 
 export const DEFAULT_EXPENSE_CATEGORIES = [
   'Food & Dining',
-  'Transportation',
+  'Groceries',
   'Entertainment',
-  'Shopping',
+  'Transportation',
   'Utilities',
   'Rent',
-  'Healthcare',
-  'Travel',
-  'Education',
+  'Shopping',
   'Other'
 ] as const;
 

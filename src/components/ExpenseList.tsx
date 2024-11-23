@@ -227,16 +227,11 @@ const ExpenseList: React.FC<ExpenseListProps> = ({
 
   return (
     <Box sx={{ width: '100%', p: 2 }}>
-      {/* Header with Total and Actions */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
-        <Box>
-          <Typography variant="h6">
-            Expenses
-          </Typography>
-          <Typography variant="h4" sx={{ mt: 1 }}>
-            ${totalAmount.toFixed(2)}
-          </Typography>
-        </Box>
+      {/* Header with Actions */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h6">
+          Recent Expenses
+        </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Button
             startIcon={<FilterList />}
