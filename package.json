@@ -2,13 +2,14 @@
   "name": "expense-tracker-pwa",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/expense-tracker-pwa",
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.5",
     "@mui/icons-material": "^5.15.5",
-    "@mui/system": "^5.15.5",
+    "@mui/material": "^5.15.5",
     "@mui/styles": "^5.15.5",
+    "@mui/system": "^5.15.5",
     "@mui/x-date-pickers": "^6.19.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -44,6 +45,7 @@
   "devDependencies": {
     "@types/react-color": "^3.0.10",
     "@types/uuid": "^8.3.4",
+    "gh-pages": "^6.2.0",
     "html-webpack-plugin": "^5.6.0",
     "react-scripts": "5.0.1",
     "webpack": "^5.89.0",
@@ -51,6 +53,8 @@
     "webpack-dev-server": "^4.15.1"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
