@@ -23,6 +23,7 @@ export interface Expense {
   excludedParticipants?: string[]; // Making this optional
   deductions: Deduction[];
   category: string;
+  groupId?: string; // Optional group ID for group expenses
 }
 
 export const DEFAULT_EXPENSE_CATEGORIES = [
@@ -63,4 +64,37 @@ export interface ExpenseSummary {
   totalTax: number;
   perPersonAmount: { [key: string]: number };
   balances: PersonBalance[];
+}
+
+// Group-related types
+export interface GroupMember {
+  user: string;
+  role: 'admin' | 'member';
+}
+
+export interface Group {
+  _id: string;
+  name: string;
+  members: GroupMember[];
+  customCategories: CustomCategory[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateGroupData {
+  name: string;
+}
+
+export interface UpdateGroupData {
+  name?: string;
+  customCategories?: CustomCategory[];
+}
+
+export interface AddMemberData {
+  email: string;
+  role?: 'admin' | 'member';
+}
+
+export interface UpdateMemberRoleData {
+  role: 'admin' | 'member';
 }
